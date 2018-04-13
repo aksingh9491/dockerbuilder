@@ -47,6 +47,14 @@ const handlePush = async (req, res) => {
     const push = req.body
     const { ref } = push
     const { clone_url, name } = push.repository
+    if (!ref || !clone_url || !name) {
+        console.log(
+            '----------------------------------------------',
+            push,
+            '----------------------------------------------',
+            `Ref: ${ref}, clone_url: ${clone_url}, name: ${name}`
+        )
+    }
     if (!ref.includes('master')) {
         if (!ref.includes('tags')) { // This is for our current setup, tags are only made on master branch.
             tagRelease(name)
