@@ -18,13 +18,13 @@ const buildaa = async (req, res) => {
     const repositoryLocation = `${here}/repository/${name}`
 
     const simpleGit = await git().clone(clone_url, repositoryLocation)
-    const process = spawn('docker', ['build', '.', '-t', name], { cwd: repositoryLocation })
+    const process = spawn('docker', ['build', '.', '-t', `localhost:5000/${name}`], { cwd: repositoryLocation })
     process.stdout.on('data', (data) => {
         console.log(`Process ${name}: ` + data);
     });
     process.on("close", (code, signal) => {
         spawn('rm', ['-r', repositoryLocation])
-        // spawn('docker', ['push', ])
+        spawn('docker', ['push', `localhost:5000/${name}`])
     })
 
     res.status(200).end()
