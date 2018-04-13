@@ -54,6 +54,7 @@ const handlePush = async (req, res) => {
             '----------------------------------------------',
             `Ref: ${ref}, clone_url: ${clone_url}, name: ${name}`
         )
+        return res.status(200).end()
     }
     if (!ref.includes('master')) {
         if (!ref.includes('tags')) { // This is for our current setup, tags are only made on master branch.
