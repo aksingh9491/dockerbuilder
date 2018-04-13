@@ -59,6 +59,4 @@ const handlePush = async (req, res) => {
 
 app.post('/build', handlePush)
 
-// app.get('*', buildaa)
-
 app.listen(PORT, () => console.log(`Server listening port ${PORT}`))
