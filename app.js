@@ -11,12 +11,12 @@ app.use(bodyParser.json())
 
 const buildImage = async (name, clone_url) => {
     try {
-        const containerName = `localhost:5000/${name}:staging`
+        const imageName = `localhost:5000/${name}:staging`
         const here = path.resolve(__dirname)
-        const repositoryLocation = `${here}/repository/${name}`
+        const repositoryLocation = `${here}/repository/${name}/${(new Date()).valueOf()}`
 
         const simpleGit = await git().clone(clone_url, repositoryLocation)
-        const process = spawn('docker', ['build', '.', '-t', containerName], { cwd: repositoryLocation })
+        const process = spawn('docker', ['build', '.', '-t', imageName], { cwd: repositoryLocation })
         process.stdout.on('data', (data) => {
             if (data) {
                 console.log(`Process ${name}: ` + data);
@@ -24,7 +24,7 @@ const buildImage = async (name, clone_url) => {
         });
         process.on("close", (code, signal) => {
             spawn('rm', ['-r', repositoryLocation])
-            spawn('docker', ['push', containerName])
+            spawn('docker', ['push', imageName])
         })
     } catch (e) {
         console.log('Building image failed:', e)
@@ -33,10 +33,10 @@ const buildImage = async (name, clone_url) => {
 
 const tagRelease = async (name) => {
     try {
-        const containerName = `localhost:5000/${name}`
-        const newTag = spawn('docker', ['tag', `${containerName}:staging`, containerName])
+        const imageName = `localhost:5000/${name}`
+        const newTag = spawn('docker', ['tag', `${imageName}:staging`, imageName])
         newTag.on("close", (code, signal) => {
-            spawn('docker', ['push', containerName])
+            spawn('docker', ['push', imageName])
         })
     } catch (e) {
         console.log('Releasing tag failed:', e)
