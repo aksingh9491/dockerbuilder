@@ -1,3 +1,11 @@
+/**
+ * Dockerbuilder replaces docker hub build feature for toska
+ * Places to improve (TODO):
+ *  - handle case when no 'staging' exists and we wish to release latest
+ *  - clear old untagged images to save space
+ *  - refactor existing code
+ *  - log smarter
+ */
 import express from 'express'
 import bodyParser from 'body-parser'
 import git from 'simple-git'
@@ -9,6 +17,15 @@ const simpleGit = git()
 const app = express()
 app.use(bodyParser.json())
 
+/**
+ * Builds a new image from a repository, 
+ * always builds master branch and tags it staging.
+ * 
+ * Then pushes the built image to registry
+ * 
+ * @param {*} name name of the repository
+ * @param {*} clone_url url from which to git clone
+ */
 const buildImage = async (name, clone_url) => {
     try {
         const imageName = `localhost:5000/${name}:staging`
@@ -31,6 +48,11 @@ const buildImage = async (name, clone_url) => {
     }
 }
 
+/**
+ * Tags the most recent image with tag staging as latest
+ * 
+ * @param {*} name name of the repository
+ */
 const tagRelease = async (name) => {
     try {
         const imageName = `localhost:5000/${name}`
@@ -43,6 +65,12 @@ const tagRelease = async (name) => {
     }
 }
 
+/**
+ * Handles the input payload for staging build / release
+ * 
+ * @param {*} req Request object
+ * @param {*} res Response object
+ */
 const handlePush = async (req, res) => {
     const push = req.body
     const { ref } = push
@@ -57,7 +85,7 @@ const handlePush = async (req, res) => {
         return res.status(200).end()
     }
     if (!ref.includes('master')) {
-        if (!ref.includes('tags')) { // This is for our current setup, tags are only made on master branch.
+        if (ref.includes('tags')) { // This is for our current setup, tags are only made on master branch.
             tagRelease(name)
         }
         return res.status(200).end()
