@@ -73,7 +73,7 @@ const buildImage = async (name, clone_url) => {
             clearOngoing(repositoryLocation)
             spawn('rm', ['-r', repositoryLocation])
             spawn('docker', ['push', imageName])
-            logger.log(`New image created: ${}`)
+            logger.log(`New image created: ${imageName}`)
         })
     } catch (e) {
         logger.error('Building image failed:', e)
