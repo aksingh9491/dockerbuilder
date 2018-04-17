@@ -11,11 +11,18 @@ import bodyParser from 'body-parser'
 import git from 'simple-git'
 import { spawn } from 'child_process'
 import path from 'path'
+import Gelf from 'gelf'
 
 const PORT = process.env.PORT || 8080
 const simpleGit = git()
 const app = express()
+const gelf = new Gelf({
+    graylogPort: process.env.GRAYLOG_PORT || 9000,
+    graylogHostname: process.env.GRAYLOG_HOST || '127.0.0.1'
+})
 app.use(bodyParser.json())
+
+gelf.emit('start', 'testmessage')
 
 /**
  * Builds a new image from a repository, 
