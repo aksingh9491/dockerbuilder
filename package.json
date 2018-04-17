@@ -26,7 +26,9 @@
     "express": "^4.16.3",
     "gelf": "^2.0.1",
     "nodemon": "^1.17.3",
-    "simple-git": "^1.92.0"
+    "simple-git": "^1.92.0",
+    "winston": "^2.4.1",
+    "winston-log2gelf": "^1.6.0"
   },
   "babel": {
     "presets": [

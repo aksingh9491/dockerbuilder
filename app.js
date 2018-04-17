@@ -4,35 +4,60 @@
  *  - handle case when no 'staging' exists and we wish to release latest
  *  - clear old untagged images to save space
  *  - refactor existing code
- *  - log smarter
  */
 import express from 'express'
 import bodyParser from 'body-parser'
 import git from 'simple-git'
 import { spawn } from 'child_process'
 import path from 'path'
-import Gelf from 'gelf'
+import winston from 'winston'
+import 'winston-log2gelf'
 
 const PORT = process.env.PORT || 8080
 const simpleGit = git()
 const app = express()
-const gelf = new Gelf({
-    graylogPort: process.env.GRAYLOG_PORT || 9000,
-    graylogHostname: process.env.GRAYLOG_HOST || '127.0.0.1'
-})
 app.use(bodyParser.json())
 
-gelf.emit('start', 'testmessage')
+const logger = new winston.Logger({
+    transports: [
+        new winston.transports.Console(),
+        new winston.transports.Log2gelf({
+            hostname: 'dockerbuilder',
+            host: process.env.LOG_HOST || 'localhost',
+            port: process.env.LOG_PORT || '1234',
+            protocol: 'http'
+        })
+    ]
+})
+
+// Just to cut the number of http requests sent.
+const ongoingLogs = {}
+
+const calmerLog = (data, name) => {
+    if (!data || !/\S/.test(data)) return // Has to contain a symbol other than whitespace
+    !ongoingLogs[name] ?
+        ongoingLogs[name] = [data] :
+        ongoingLogs[name].push(data)
+
+    if (ongoingLogs[name].length > 4) {
+        logger.info(ongoingLogs[name].join('\n'))
+        ongoingLogs[name] = []
+    }
+}
+const clearOngoing = (name) => {
+    logger.info(ongoingLogs[name].join('\n'))
+    delete ongoingLogs[name]
+}
 
 /**
- * Builds a new image from a repository, 
- * always builds master branch and tags it staging.
- * 
- * Then pushes the built image to registry
- * 
- * @param {*} name name of the repository
- * @param {*} clone_url url from which to git clone
- */
+* Builds a new image from a repository, 
+* always builds master branch and tags it staging.
+* 
+* Then pushes the built image to registry
+* 
+* @param {*} name name of the repository
+* @param {*} clone_url url from which to git clone
+*/
 const buildImage = async (name, clone_url) => {
     try {
         const imageName = `localhost:5000/${name}:staging`
@@ -42,16 +67,16 @@ const buildImage = async (name, clone_url) => {
         const simpleGit = await git().clone(clone_url, repositoryLocation)
         const process = spawn('docker', ['build', '.', '-t', imageName], { cwd: repositoryLocation })
         process.stdout.on('data', (data) => {
-            if (data) {
-                console.log(`Process ${name}: ` + data);
-            }
+            calmerLog(data, repositoryLocation)
         });
         process.on("close", (code, signal) => {
+            clearOngoing(repositoryLocation)
             spawn('rm', ['-r', repositoryLocation])
             spawn('docker', ['push', imageName])
+            logger.log(`New image created: ${}`)
         })
     } catch (e) {
-        console.log('Building image failed:', e)
+        logger.error('Building image failed:', e)
     }
 }
 
@@ -66,9 +91,10 @@ const tagRelease = async (name) => {
         const newTag = spawn('docker', ['tag', `${imageName}:staging`, imageName])
         newTag.on("close", (code, signal) => {
             spawn('docker', ['push', imageName])
+            logger.info(`Released: ${imageName}`)
         })
     } catch (e) {
-        console.log('Releasing tag failed:', e)
+        logger.error('Releasing tag failed:', e)
     }
 }
 
@@ -83,7 +109,7 @@ const handlePush = async (req, res) => {
     const { ref } = push
     const { clone_url, name } = push.repository
     if (!ref || !clone_url || !name) {
-        console.log(
+        logger.warn(
             '----------------------------------------------',
             push,
             '----------------------------------------------',
@@ -93,14 +119,18 @@ const handlePush = async (req, res) => {
     }
     if (!ref.includes('master')) {
         if (ref.includes('tags')) { // This is for our current setup, tags are only made on master branch.
+            logger.info(`New release started ${name}`)
             tagRelease(name)
         }
         return res.status(200).end()
     }
+    logger.info(`New staging release build started ${name}`)
     buildImage(name, clone_url)
     res.status(200).end()
 }
 
 app.post('/build', handlePush)
 
-app.listen(PORT, () => console.log(`Server listening port ${PORT}`))
+app.listen(PORT, () => {
+    logger.info(`Started dockerbuilder on port ${PORT}`)
+})
