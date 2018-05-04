@@ -68,11 +68,10 @@ const buildImage = async (name, clone_url) => {
         const simpleGit = await git().clone(clone_url, repositoryLocation)
         const process = spawn('docker', ['build', '.', '-t', imageName], { cwd: repositoryLocation })
         process.stdout.on('data', (data) => {
-            //calmerLog(data, repositoryLocation)
-            logger.info(data)
+            calmerLog(data.toString(), repositoryLocation)
         });
         process.on("close", (code, signal) => {
-            //clearOngoing(repositoryLocation)
+            clearOngoing(repositoryLocation)
             spawn('rm', ['-r', repositoryLocation])
             spawn('docker', ['push', imageName])
             logger.info(`New image created: ${imageName}`)
