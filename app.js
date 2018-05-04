@@ -4,6 +4,7 @@
  *  - handle case when no 'staging' exists and we wish to release latest
  *  - clear old untagged images to save space
  *  - refactor existing code
+ *  - implement less intensive logging
  */
 import express from 'express'
 import bodyParser from 'body-parser'
@@ -67,13 +68,14 @@ const buildImage = async (name, clone_url) => {
         const simpleGit = await git().clone(clone_url, repositoryLocation)
         const process = spawn('docker', ['build', '.', '-t', imageName], { cwd: repositoryLocation })
         process.stdout.on('data', (data) => {
-            calmerLog(data, repositoryLocation)
+            //calmerLog(data, repositoryLocation)
+            logger.info(data)
         });
         process.on("close", (code, signal) => {
-            clearOngoing(repositoryLocation)
+            //clearOngoing(repositoryLocation)
             spawn('rm', ['-r', repositoryLocation])
             spawn('docker', ['push', imageName])
-            logger.log(`New image created: ${imageName}`)
+            logger.info(`New image created: ${imageName}`)
         })
     } catch (e) {
         logger.error('Building image failed:', e)
