@@ -1,21 +1,19 @@
 version: 0.2
 
 phases:
-   install: 
-     runtime versions:
+  install:
+    runtime-versions:
       nodejs: 8
-   pre-build:
-     commands:
-       -echo Nothing to do in prebuild phase
-   build:
-     commands: 
-       - echo Build Strated on 'date'  
-       - docker build -t node-js-v1
-   post_build:
-     commands:
-       - echo Build completed on `date`
+  pre_build:
+    commands:
+      - echo Nothing to do in the pre_build phase...
+  build:
+    commands:
+      - echo Build started on `date`
+      - docker build -t nodejs-app-v1
+  post_build:
+    commands:
+      - echo Build completed on `date`
 artifacts:
   files:
-    -target/
-
-           
+    - target/messageUtil-1.0.jar

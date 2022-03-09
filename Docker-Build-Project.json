@@ -2,7 +2,7 @@
     "name": "Abhi-Docker-project",
     "source": {
       "type": "GITHUB",
-      "location": "abhi-pipeline-input/src/"
+      "location": "https://github.com/aksingh9491/dockerbuilder.git"
     },
     "artifacts": {
       "type": "S3",
