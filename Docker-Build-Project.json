@@ -1,0 +1,18 @@
+{
+    "name": "Abhi-Docker-project",
+    "source": {
+      "type": "GITHUB",
+      "location": "abhi-pipeline-input/src/"
+    },
+    "artifacts": {
+      "type": "S3",
+      "location": "abhi-pipeline-output"
+    },
+    "environment": {
+      "type": "LINUX_CONTAINER",
+      "image": "aws/codebuild/standard:4.0",
+      "computeType": "BUILD_GENERAL1_LARGE"
+    },
+    "serviceRole": "abhi-codebuildrole"
+  }
+  
