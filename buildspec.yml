@@ -1,19 +1,25 @@
 version: 0.2
-
+env:
+  shell: bash
+  secrets-manager:
+    DOCKERHUB_USERNAME: DockerHubSecret:dockerhub_username
+    DOCKERHUB_PASSWORD: DockerHubSecret:dockerhub_password
 phases:
   install:
     runtime-versions:
       nodejs: 12
   pre_build:
     commands:
-      - echo Nothing to do in the pre_build phase...
+      - echo Logging in to Docker Hub
+      - docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
   build:
     commands:
       - echo Build started on `date`
-      - docker build dockerfile
+      - docker build -t my-aws-build
   post_build:
     commands:
       - echo Build completed on `date`
+      - docker push aksingh9491/nodejsapp:my-aws-build 
 artifacts:
   files:
-    - target/messageUtil-1.0.jar
+    - target/
