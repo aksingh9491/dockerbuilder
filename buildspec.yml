@@ -16,7 +16,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - docker build -t $DOCKERHUB_USERNAME/nodejsapp:my-aws-build
+      - docker build -t $DOCKERHUB_USERNAME/nodejsapp:my-aws-build .
   post_build:
     commands:
       - echo Build completed on `date`
