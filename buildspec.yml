@@ -2,8 +2,8 @@ version: 0.2
 env:
   shell: bash
   secrets-manager:
-    DOCKERHUB_USERNAME: DockerHubSecret:dockerhub_username
-    DOCKERHUB_PASSWORD: DockerHubSecret:dockerhub_password
+    DOCKERHUB_USERNAME: DockerHubSecret
+    DOCKERHUB_PASSWORD: DockerHubSecret
 phases:
   install:
     runtime-versions:
