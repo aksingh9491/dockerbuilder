@@ -11,8 +11,8 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Docker Hub
-      - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-     # - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+     # - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
   build:
     commands:
       - echo Build started on `date`
