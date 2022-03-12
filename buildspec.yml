@@ -4,6 +4,7 @@ env:
   secrets-manager:
     DOCKERHUB_USERNAME: DockerHub-Secret:username
     DOCKERHUB_PASSWORD: DockerHub-Secret:password
+    AWS_DEFAULT_REGION: DockerHub-Secret:region
 phases:
   install:
     runtime-versions:
@@ -11,6 +12,7 @@ phases:
   pre_build:  
     commands:
       - echo Logging in to Docker Hub
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 469477388331.dkr.ecr.us-east-1.amazonaws.com
       #- echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       #- aws ecr get-login-password | docker login --username AWS --password-stdin
   build:
