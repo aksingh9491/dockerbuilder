@@ -20,7 +20,7 @@ phases:
   post_build:
     commands:
       - echo Build completed on `date`
-      - docker push abhi-repo\my-aws-build:latest
+      - docker push my-aws-build:v1 469477388331.dkr.ecr.us-east-1.amazonaws.com/abhi-repo:my-aws-build
 artifacts:
   files:
     -  Docker-Build-Project.json
