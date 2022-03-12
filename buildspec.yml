@@ -12,7 +12,9 @@ phases:
   pre_build:  
     commands:
       - echo Logging in to ECR
-      - aws ecr get-login-password --region us-east-1
+      #- aws ecr get-login-password --region us-east-1
+      - eval $(aws ecr get-login --no-include-email | sed ‘s|https://||’)
+      - docker login -u AWS -p -e none https://469477388331.dkr.ecr.us-east-1.amazonaws.com
       #- echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       #- aws ecr get-login-password | docker login --username AWS --password-stdin
   build:
