@@ -8,19 +8,19 @@ phases:
   install:
     runtime-versions:
       java: corretto8
-  pre_build:  
+  pre_build:
     commands:
       - echo Logging in to Docker Hub
-      #- echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      #- aws ecr get-login-password | docker login --username AWS --password-stdin
+      - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      #- docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD --password-stdin
   build:
     commands:
       - echo Build started on `date`
-      - docker build -t my-aws-build .
+      - docker build -t $DOCKERHUB_USERNAME/nodejsapp:my-aws-build .
   post_build:
     commands:
       - echo Build completed on `date`
-      - docker push 469477388331.dkr.ecr.us-east-1.amazonaws.com/my-aws-build:latest
+      - docker push $DOCKERHUB_USERNAME/nodejsapp:my-aws-build 
 artifacts:
   files:
     -  Docker-Build-Project.json

@@ -5,8 +5,7 @@
       "location": "https://github.com/aksingh9491/dockerbuilder.git"
     },
     "artifacts": {
-      "type": "S3",
-      "location": "abhi-pipeline-output"
+      "type": "NO_ARTIFACTS"
     },
     "environment": {
       "type": "LINUX_CONTAINER",
