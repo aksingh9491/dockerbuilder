@@ -19,11 +19,11 @@ phases:
     commands:
       - echo Build started on `date`
       - docker build -t my-aws-build .
-      - docker tag my-aws-build:latest 469477388331.dkr.ecr.us-east-1.amazonaws.com/my-aws-build:latest
+      - docker tag my-aws-build:latest 469477388331.dkr.ecr.us-east-1.amazonaws.com/abhi-repo:v1
   post_build:
     commands:
       - echo Build completed on `date`
-      - docker push 469477388331.dkr.ecr.us-east-1.amazonaws.com/my-aws-build:latest
+      - docker push 469477388331.dkr.ecr.us-east-1.amazonaws.com/abhi-repo
 artifacts:
   files:
     -  Docker-Build-Project.json
