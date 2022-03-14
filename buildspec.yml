@@ -13,6 +13,7 @@ phases:
     commands:
       - echo Logging in to ECR
       #- aws ecr get-login-password --region us-east-1
+      -  aws --version
       -  $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email) 
       -  REPOSITORY_URI=469477388331.dkr.ecr.us-east-1.amazonaws.com/abhi-repo
       -  IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
