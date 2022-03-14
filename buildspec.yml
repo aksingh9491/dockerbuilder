@@ -13,7 +13,7 @@ phases:
     commands:
       - echo Logging in to ECR
       #- aws ecr get-login-password --region us-east-1
-      - aws ecr get-login-password --region us-east-1 --profile profile eb-cli
+      - aws ecr get-login-password --region us-east-1 
       #- docker login -u AWS -p -e none https://469477388331.dkr.ecr.us-east-1.amazonaws.com
       #- echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       #- aws ecr get-login-password | docker login --username AWS --password-stdin
