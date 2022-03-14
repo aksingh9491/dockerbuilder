@@ -1,36 +1,28 @@
 version: 0.2
-env:
-  shell: bash
-  secrets-manager:
-    DOCKERHUB_USERNAME: DockerHub-Secret:username
-    DOCKERHUB_PASSWORD: DockerHub-Secret:password
-    AWS_DEFAULT_REGION: DockerHub-Secret:region
+
+
 phases:
-  install:
-    runtime-versions:
-      java: corretto8
-  pre_build:  
+  pre_build:
     commands:
-      - echo Logging in to ECR
-      #- aws ecr get-login-password --region us-east-1
-      -  aws --version
-      -  $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email) 
-      -  REPOSITORY_URI=469477388331.dkr.ecr.us-east-1.amazonaws.com/abhi-repo
-      -  IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
-      #- docker login -u AWS -p -e none https://469477388331.dkr.ecr.us-east-1.amazonaws.com
-      #- echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      #- aws ecr get-login-password | docker login --username AWS --password-stdin
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - REPOSITORY_URI=469477388331.dkr.ecr.us-east-1.amazonaws.com/abhi-repo
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   build:
     commands:
       - echo Build started on `date`
+      - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-     # - docker tag my-aws-build 469477388331.dkr.ecr.us-east-1.amazonaws.com/abhi-repo
   post_build:
     commands:
-      - echo Pushing the Docker images..
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '[{"name":"nodeapp","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > Docker-Build-Project.json
 artifacts:
-  files:
-    -  Docker-Build-Project.json
+    files: Docker-Build-Project.json
